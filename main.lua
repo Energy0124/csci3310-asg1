@@ -18,6 +18,11 @@ endX = 0
 endY = 0
 tileCount=0
 tileTable = {}
+winSoundChannel = {}
+hitChannel = {}
+winMusicChannel= {}
+sorrySoundChannel= {}
+backgroundMusicChannel= {}
 
 background = display.newImage("nanami.jpg")
 background.fill.effect = "filter.blur"
@@ -161,12 +166,12 @@ local function onCollision(event)
       display.remove( obj1 )
       tileCount=tileCount-1
       tileText.text=tileCount
-      local hitChannel = audio.play( hitSound )
+       hitChannel = audio.play( hitSound )
     elseif (obj2.isTile and obj1.isBall) then
       display.remove( obj2 )
       tileCount=tileCount-1
       tileText.text=tileCount
-      local hitChannel = audio.play( hitSound )
+       hitChannel = audio.play( hitSound )
     end
   end
 end
