@@ -25,12 +25,11 @@ sorrySoundChannel= {}
 backgroundMusicChannel= {}
 
 background = display.newImage("nanami.jpg")
--- background.fill.effect = "filter.blur"
-background.fill.effect = "filter.frostedGlass"
-background.fill.effect.scale =  25
+background.fill.effect = "filter.blur"
+-- background.fill.effect = "filter.frostedGlass"
+-- background.fill.effect.scale =  25
 background.x = display.contentCenterX
 background.y = display.contentCenterY
-
 local backgroundMusic = audio.loadStream( "40mp.mp3" )
 local winMusic = audio.loadStream( "UNICORN.ogg" )
 local winSound = audio.loadSound( "nanami.mp3" )
