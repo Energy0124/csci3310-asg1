@@ -191,13 +191,13 @@ local function onClickWin(event)
     createTileSet()
     audio.resume( backgroundMusicChannel )
     resetBallAndPaddle()
-    loadingGif=display.newImage("nanami_sad.png")
-    loadingGif.x=display.contentCenterX
-    loadingGif.y=display.contentCenterY
-    sorrySoundChannel=audio.play( sorrySound )
+    -- loadingGif=display.newImage("nanami_sad.png")
+    -- loadingGif.x=display.contentCenterX
+    -- loadingGif.y=display.contentCenterY
+    -- sorrySoundChannel=audio.play( sorrySound )
     local toState0Closure = function()
       resetBallAndPaddle()
-      display.remove(loadingGif)
+      -- display.remove(loadingGif)
       return toState(0)
     end
     timer.performWithDelay( 1000, toState0Closure,1)
@@ -206,7 +206,7 @@ end
 
 local function gameLoop()
     -- auto play for debug
-    -- paddle.x=ball.x
+    paddle.x=ball.x
     -- for debug
     -- tileCount=0
     if(tileCount<=0 and state == 1) then
