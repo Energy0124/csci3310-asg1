@@ -3,9 +3,6 @@
 -- main.lua
 --
 -----------------------------------------------------------------------------------------
-
--- Your code here
-
 tileWidth=50
 tileHeight=20
 tilePerRow=10
@@ -21,14 +18,15 @@ endX = 0
 endY = 0
 tileCount=0
 tileTable = {}
--- for f=1, 4 do
---     tileTable[f] = {}
---     for g=1, 10 do
---         tileTable[f][g] = 0
---     end
--- end
+
+background = display.newImage("nanami.jpg")
+background.x = display.contentCenterX
+background.y = display.contentCenterY
 local backgroundMusic = audio.loadStream( "40mp.mp3" )
-local hitSound = audio.loadSound( "Tutturu.mp3" )
+local winMusic = audio.loadStream( "UNICORN.ogg" )
+local winSound = audio.loadSound( "nanami.mp3" )
+local hitSound = audio.loadSound( "smw_coin.wav" )
+local sorrySound = audio.loadSound( "sorry.mp3" )
 
 local physics = require( "physics" )
 physics.start()
@@ -57,6 +55,7 @@ local function createTile(x,y,r,g,b)
 end
 
 local function createTileSet()
+  tileCount=0
   for i=0,9 do
     createTile((display.contentWidth-tileWidth*tilePerRow-
       (tilePerRow-1)*tileRowGap)/2+i*tileWidth+i*tileRowGap+20,
@@ -71,7 +70,6 @@ local function createTileSet()
       (tilePerRow-1)*tileRowGap)/2+i*tileWidth+i*tileRowGap+20,
       verticalOffset+3*(tileHeight+tileVerticalGap),0,1,1)
   end
-
 end
 
 local function createWall()
@@ -117,29 +115,19 @@ local function shotBall( event )
     local phase = event.phase
     if ( state == 0 ) then
       if ( "began" == phase ) then
-          -- Set touch focus on the ship
-          --display.currentStage:setFocus( target )
-          -- Store initial offset position
           startX = event.x
           startY = event.y
-      -- elseif ( "moved" == phase ) then
-      --     -- Move the ship to the new touch position
-      --     endX = event.x
-      --     endY = event.y
       elseif ( "ended" == phase or "cancelled" == phase ) then
-          -- Release touch focus on the ship
           endX = event.x
           endY = event.y
-          forceX=(endX-startX)/display.contentWidth
-          forceY=math.abs(endY-startY)/display.contentHeight
+          forceX=(endX-startX)*2.0/display.contentWidth
+          forceY=math.abs(endY-startY)*2.0/display.contentHeight+0.05
           if(endY-startY >0) then
             forceX = -forceX
           end
           pushBall(forceX,forceY)
-
           local toState1Closure = function() return toState(1) end
           timer.performWithDelay( 500, toState1Closure,1)
-          -- state=1
       end
     end
 
@@ -150,16 +138,11 @@ local function movePaddle(event)
   local phase = event.phase
   if ( state == 1 ) then
     if ( "began" == phase ) then
-        -- Set touch focus on the ship
-        --display.currentStage:setFocus( target )
-        -- Store initial offset position
         paddle.offsetX = event.x - paddle.x
     elseif ( "moved" == phase ) then
-        -- Move the ship to the new touch position
-        paddle.x = event.x - paddle.offsetX
+        paddle.x = clamp(event.x - paddle.offsetX, 0 , display.contentWidth)
     elseif ( "ended" == phase or "cancelled" == phase ) then
-        -- Release touch focus on the ship
-        paddle.x = event.x - paddle.offsetX
+        paddle.x = clamp(event.x - paddle.offsetX, 0 , display.contentWidth)
     end
   end
 
@@ -180,7 +163,6 @@ local function onCollision(event)
       tileCount=tileCount-1
       tileText.text=tileCount
       local hitChannel = audio.play( hitSound )
-
     end
   end
 end
@@ -192,42 +174,80 @@ local function resetBallAndPaddle()
   ball.y = display.contentHeight-80-35
   ball:setLinearVelocity(0,0)
 end
+local function onClickWin(event)
+  if(state==2) then
+    display.remove(victoryImg)
+    display.remove(nanamiWinImg)
+    audio.stop( winMusicChannel )
+    createTileSet()
+    audio.resume( backgroundMusicChannel )
+    resetBallAndPaddle()
+    loadingGif=display.newImage("nanami_sad.png")
+    loadingGif.x=display.contentCenterX
+    loadingGif.y=display.contentCenterY
+    sorrySoundChannel=audio.play( sorrySound )
+    local toState0Closure = function()
+      resetBallAndPaddle()
+      display.remove(loadingGif)
+      return toState(0)
+    end
+    timer.performWithDelay( 1000, toState0Closure,1)
+  end
+end
 
 local function gameLoop()
--- auto play
+    -- auto play for debug
     -- paddle.x=ball.x
-    if(tileCount<=0) then
-      createTileSet()
+    -- for debug
+    -- tileCount=0
+    if(tileCount<=0 and state == 1) then
+      state=-1
+      audio.pause( backgroundMusicChannel )
+      winSoundChannel=audio.play( winSound )
+      winMusicChannel = audio.play( winMusic, { loops=-1 ,fadein=2000 } )
+      victoryImg= display.newImage("victory.png")
+      victoryImg.x=display.contentCenterX
+      victoryImg.y=display.contentCenterY
+      nanamiWinImg= display.newImage("nanami_win.png")
+      nanamiWinImg.x=display.contentCenterX
+      nanamiWinImg.y=display.contentCenterY+350
       resetBallAndPaddle()
-      state=0
+      -- state=2
+      local toState2Closure = function() return toState(2) end
+      timer.performWithDelay( 1000, toState2Closure,1)
     end
     if ( ball.x < -100 or
          ball.x > display.contentWidth + 100 or
          ball.y < -100 or
          ball.y > display.contentHeight + 100 )
     then
-        -- display.remove( ball )
-        -- display.remove( paddle )
-        -- createPaddle()
-        -- createBall()
         resetBallAndPaddle()
-        state=0
+        state=-1
+        loadingGif=display.newImage("nanami_sad.png")
+        loadingGif.x=display.contentCenterX
+        loadingGif.y=display.contentCenterY
+        sorrySoundChannel=audio.play( sorrySound )
+
+        local toState0Closure = function()
+          resetBallAndPaddle()
+          display.remove(loadingGif)
+          return toState(0)
+        end
+        timer.performWithDelay( 1000, toState0Closure,1)
     end
-
-
 end
-
-
 
 Runtime:addEventListener("touch",shotBall)
 Runtime:addEventListener("touch",movePaddle)
+Runtime:addEventListener("touch",onClickWin)
 Runtime:addEventListener("enterFrame", gameLoop)
 Runtime:addEventListener( "collision", onCollision )
 
--- Play the background music on channel 1, loop infinitely, and fade in over 5 seconds
-local backgroundMusicChannel = audio.play( backgroundMusic, { channel=1, loops=-1, fadein=5000 } )
+-- Play the background music on channel 1, loop infinitely
+audio.setVolume( 0.2, { channel=1 } )
+backgroundMusicChannel = audio.play( backgroundMusic, { channel=1, loops=-1, fadein=500 } )
+
 createWall()
 createTileSet()
 createPaddle()
 createBall()
---pushBall(forceX,forceY)
