@@ -20,6 +20,9 @@ tileCount=0
 tileTable = {}
 
 background = display.newImage("nanami.jpg")
+background.fill.effect = "filter.blur"
+background.fill.effect = "filter.frostedGlass"
+background.fill.effect.scale =  25
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 local backgroundMusic = audio.loadStream( "40mp.mp3" )
@@ -90,6 +93,7 @@ end
 local function createPaddle()
   paddle = display.newRect( display.contentCenterX,
     display.contentHeight-80, 150, 30 )
+  paddle:setFillColor(0.56, 0.89, 0.41)
   paddle.offsetX=0
   paddleRectParams = { halfWidth=150/2, halfHeight=30/2 }
   physics.addBody( paddle, "static",{bounce=1.0,box=paddleRectParams} )
