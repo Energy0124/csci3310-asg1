@@ -208,7 +208,7 @@ end
 
 local function gameLoop()
     -- auto play for debug
-    paddle.x=ball.x
+    -- paddle.x=ball.x
     -- for debug
     -- tileCount=0
     if(tileCount<=0 and state == 1) then
