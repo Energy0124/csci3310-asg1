@@ -25,9 +25,9 @@ sorrySoundChannel= {}
 backgroundMusicChannel= {}
 
 background = display.newImage("nanami.jpg")
--- background.fill.effect = "filter.blur"
-background.fill.effect = "filter.frostedGlass"
-background.fill.effect.scale =  25
+background.fill.effect = "filter.blur"
+-- background.fill.effect = "filter.frostedGlass"
+-- background.fill.effect.scale =  25
 background.x = display.contentCenterX
 background.y = display.contentCenterY
 local backgroundMusic = audio.loadStream( "40mp.mp3" )
@@ -57,8 +57,7 @@ local function createTile(x,y,r,g,b)
   tile.isTile=true
   tileRectParams = { halfWidth=tileWidth/2, halfHeight=tileHeight/2 }
   physics.addBody( tile, "static", {bounce=1.0, box=tileRectParams })
-  tileCount=tileCount+1
-  tileText.text=tileCount
+
   -- table.insert(tileTable,tile)
 end
 
@@ -78,6 +77,8 @@ local function createTileSet()
       (tilePerRow-1)*tileRowGap)/2+i*tileWidth+i*tileRowGap+20,
       verticalOffset+3*(tileHeight+tileVerticalGap),0,1,1)
   end
+  tileCount=40
+  tileText.text=tileCount
 end
 
 local function createWall()
@@ -185,6 +186,7 @@ local function resetBallAndPaddle()
 end
 local function onClickWin(event)
   if(state==2) then
+    state=-1
     display.remove(victoryImg)
     display.remove(nanamiWinImg)
     audio.stop( winMusicChannel )
@@ -206,7 +208,7 @@ end
 
 local function gameLoop()
     -- auto play for debug
-    -- paddle.x=ball.x
+    paddle.x=ball.x
     -- for debug
     -- tileCount=0
     if(tileCount<=0 and state == 1) then
@@ -253,7 +255,7 @@ Runtime:addEventListener("enterFrame", gameLoop)
 Runtime:addEventListener( "collision", onCollision )
 
 -- Play the background music on channel 1, loop infinitely
-audio.setVolume( 0.2, { channel=1 } )
+audio.setVolume( 0.5, { channel=1 } )
 backgroundMusicChannel = audio.play( backgroundMusic, { channel=1, loops=-1, fadein=500 } )
 
 createWall()
