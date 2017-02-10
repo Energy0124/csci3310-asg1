@@ -132,12 +132,14 @@ local function shotBall( event )
           endY = event.y
           forceX=(endX-startX)*2.0/display.contentWidth
           forceY=math.abs(endY-startY)*2.0/display.contentHeight+0.05
+          if (forceY<0.2) then forceY=0.2 end
           if(endY-startY >0) then
             forceX = -forceX
           end
           pushBall(forceX,forceY)
+          state=-1
           local toState1Closure = function() return toState(1) end
-          timer.performWithDelay( 500, toState1Closure,1)
+          timer.performWithDelay( 100, toState1Closure,1)
       end
     end
 
@@ -165,11 +167,15 @@ local function onCollision(event)
     local obj2 = event.object2
     if (obj1.isTile and obj2.isBall) then
       display.remove( obj1 )
+      obj1:removeSelf()
+      obj1=nil
       tileCount=tileCount-1
       tileText.text=tileCount
        hitChannel = audio.play( hitSound )
     elseif (obj2.isTile and obj1.isBall) then
       display.remove( obj2 )
+      obj2:removeSelf()
+      obj2=nil
       tileCount=tileCount-1
       tileText.text=tileCount
        hitChannel = audio.play( hitSound )
